@@ -1,5 +1,5 @@
 import inspect
-from typing import Optional, Callable, Tuple
+from typing import Optional, Callable, Tuple, Type
 
 from . utils import snake_case
 
@@ -122,7 +122,7 @@ class ModelField(Field):
     Used for one-to-many relationships.
     """
 
-    def __init__(self, model: _BaseModel, **kwargs):
+    def __init__(self, model: Type[_BaseModel], **kwargs):
         # keeping track of this stuff so we can emit useful error messages
         self.field_model = model
         self.field_model_name = model.__name__
@@ -223,8 +223,8 @@ class BaseModel(_BaseModel):
             setattr(self, field_name, field_value)
             # actually `Field` instance becomes hidden
             setattr(self, f'_{field_name}', field)
-            # if _validate_on_init:
-            #     field.validate(field_value)
+            if _validate_on_init:
+                field.validate(field_value)
 
     def __init__(self, _validate_on_init: bool = False, **kwargs):
         f"""
@@ -239,8 +239,6 @@ class BaseModel(_BaseModel):
 
         self._set_fields(_validate_on_init, kwargs)
         self._set_model_fields(_validate_on_init, kwargs)
-
-
 
     @property
     def is_valid(self):
@@ -263,7 +261,7 @@ class BaseModel(_BaseModel):
         user.validate(raise_error=False) # returns (False, description_of_errors<dict>) because username is required
         """
         error_map = {}
-        for field_name in self._field_names:
+        for field_name in self._field_names.union(self._model_field_names):
             # The `Field` version of the field is now private
             field_obj = getattr(self, f'_{field_name}')
             field_value = getattr(self, field_name)
@@ -337,7 +335,7 @@ class Model(BaseModel):
 
     Example:
 
-    class Profile(Model):
+    class Profile(BaseModel):
         id = Field(required=True, default=uuid.uuid4)
         first_name = Field(required=True)
         last_name = Field(required=True)
@@ -345,7 +343,7 @@ class Model(BaseModel):
         class Meta:
             collection = 'artichoke'
 
-    class User(Model):
+    class User(BaseModel):
         id = Field(required=True, default=uuid.uuid4)
         username = Field(required=True)
         password = Field(required=True)

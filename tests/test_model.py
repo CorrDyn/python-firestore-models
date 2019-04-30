@@ -23,7 +23,7 @@ class TestBaseModel(TestCase):
         with self.assertRaises((models.ValidationError, )):
             test = MyModel(test_field=None, _validate_on_init=True)
 
-    def test__get_fields(self):
+    def test__field_names(self):
 
         class MyModel(models.BaseModel):
             test_field1 = models.Field()
@@ -32,7 +32,13 @@ class TestBaseModel(TestCase):
 
         test = MyModel()
         # fields defined in the class scope are stored privately and can be listed by calling _get_fields
-        self.assertTrue(all([field in test._get_fields() for field in ['_test_field1', '_test_field2', '_test_field3']]))
+        self.assertTrue(all([field in test._field_names for field in ['test_field1', 'test_field2', 'test_field3']]))
+
+    def test__model_field_names(self):
+        self.fail()
+
+    def test_is_valid(self):
+        self.fail()
 
     def test_validate(self):
 
@@ -70,6 +76,9 @@ class TestBaseModel(TestCase):
         for i, key in enumerate(['one', 'two', 'three', 'four']):
             self.assertEqual(my_instance_dict[key], i + 1)
 
+    def test_from_dict(self):
+        self.fail()
+
 
 class TestModel(TestCase):
 
@@ -89,8 +98,22 @@ class TestModel(TestCase):
         self.assertEqual(my_instance._collection, 'my-model', 'Meta fields not working')
 
     @skipIf(should_skip, 'Google Application Credentials could not be determined from the environment.')
+    def test_retrieve(self):
+        self.fail()
+
+    @skipIf(should_skip, 'Google Application Credentials could not be determined from the environment.')
     def test_save(self):
         my_instance = TestModel.MyModel()
         my_instance.save()
 
-        self.assertEquals(my_instance.collection.get(my_instance.id), )
+        self.assertEquals(my_instance.to_dict(), my_instance.retrieve())
+
+    @skipIf(should_skip, 'Google Application Credentials could not be determined from the environment.')
+    def test_delete(self):
+        self.fail()
+
+
+class TestRelationalModel(TestCase):
+
+    def test_validate(self):
+        self.fail()
