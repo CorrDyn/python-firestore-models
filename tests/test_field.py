@@ -41,7 +41,7 @@ class TestField(TestCase):
 
         f = Field(validation=generic_validator)
         # alternatively, we can prevent validation from raising an error.
-        self.assertFalse(f.validate(None, error=False)[0], "Field.validate function should return false.")
+        self.assertFalse(f.validate(None, raise_error=False)[0], "Field.validate function should return false.")
 
     def test_default(self):
 
