@@ -40,7 +40,7 @@ class TestBaseModel(TestCase):
             test_field1 = models.Field(required=True)
             test_field2 = models.Field(required=True, default=time.time)
             test_field3 = models.Field(required=False)
-            test_field4 = models.Field(required=True, validation=lambda x: isinstance(x, int))
+            test_field4 = models.Field(required=True, validation=lambda x: (isinstance(x, int), {'detail': 'test_field4 must be an int.'}))
 
         # required fields are... required
         MyModel(test_field1=1, test_field4=7, _validate_on_init=True)  # this is okay
