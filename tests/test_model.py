@@ -35,10 +35,16 @@ class TestBaseModel(TestCase):
         self.assertTrue(all([field in test._field_names for field in ['test_field1', 'test_field2', 'test_field3']]))
 
     def test__model_field_names(self):
-        self.fail()
 
-    def test_is_valid(self):
-        self.fail()
+        class MyModel1(models.BaseModel):
+            test_field = models.Field()
+
+        class MyModel2(models.BaseModel):
+            test_model_field = models.ModelField(MyModel1)
+
+        test = MyModel2()
+        # fields defined in the class scope are stored privately and can be listed by calling _get_fields
+        self.assertTrue(all([field in test._model_field_names for field in ['test_model_field']]))
 
     def test_validate(self):
 
@@ -62,6 +68,17 @@ class TestBaseModel(TestCase):
         with self.assertRaises((models.ValidationError, )):
             MyModel(test_field1=1, test_field4=7.0, _validate_on_init=True)
 
+    def test_is_valid(self):
+        class MyModel(models.BaseModel):
+            test_field1 = models.Field(required=True)
+            test_field2 = models.Field(required=True, default=time.time)
+            test_field3 = models.Field(required=False)
+            test_field4 = models.Field(required=True, validation=lambda x: (
+            isinstance(x, int), {'detail': 'test_field4 must be an int.'}))
+
+        self.assertFalse(MyModel().is_valid, 'is_valid not working')
+        self.assertTrue(MyModel(test_field1=1, test_field4=7).is_valid, 'is_valid not working')
+
     def test_to_dict(self):
 
         class MyModel(models.BaseModel):
@@ -77,43 +94,57 @@ class TestBaseModel(TestCase):
             self.assertEqual(my_instance_dict[key], i + 1)
 
     def test_from_dict(self):
-        self.fail()
+
+        class MyModel(models.BaseModel):
+            one = models.Field()
+            two = models.Field()
+            three = models.Field()
+            four = models.Field()
+
+        my_instance = MyModel()
+        my_instance.from_dict({'one': 1, 'two': 2, 'three': 3, 'four': 4})
+        my_instance_dict = my_instance.to_dict()
+
+        for i, key in enumerate(['one', 'two', 'three', 'four']):
+            self.assertEqual(my_instance_dict[key], i + 1)
 
 
+should_skip = not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', False)
+
+
+@skipIf(should_skip, 'Google Application Credentials could not be determined from the environment.')
 class TestModel(TestCase):
 
-    should_skip = not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', False)
+    @classmethod
+    def setUpClass(cls):
+        super(TestModel, cls).setUpClass()
 
-    class MyModel(models.Model):
-        one = models.Field(default=1)
+        class MyModel(models.Model):
+            one = models.Field(default=1)
 
-        class Meta:
-            collection = 'my-model'
+            class Meta:
+                collection = 'my-model'
+                model_name = 'my_model'
 
-    @skipIf(should_skip, 'Google Application Credentials could not be determined from the environment.')
+        cls.MyModel = MyModel
+
     def test__meta_fields(self):
 
-        my_instance = TestModel.MyModel()
+        my_instance = self.MyModel()
 
         self.assertEqual(my_instance._collection, 'my-model', 'Meta fields not working')
+        self.assertEqual(my_instance._model_name, 'my_model', 'Meta fields not working')
 
-    @skipIf(should_skip, 'Google Application Credentials could not be determined from the environment.')
-    def test_retrieve(self):
-        self.fail()
-
-    @skipIf(should_skip, 'Google Application Credentials could not be determined from the environment.')
-    def test_save(self):
-        my_instance = TestModel.MyModel()
+    def test_save_delete_retrieve(self):
+        my_instance = self.MyModel()
         my_instance.save()
 
-        self.assertEquals(my_instance.to_dict(), my_instance.retrieve())
+        my_dict = my_instance.to_dict()
+        remote_dict = my_instance.retrieve()
 
-    @skipIf(should_skip, 'Google Application Credentials could not be determined from the environment.')
-    def test_delete(self):
-        self.fail()
+        for key, value in my_dict.items():
+            self.assertEqual(remote_dict[key], value, 'remote value did not equal local value.')
 
+        my_instance.delete()
 
-class TestRelationalModel(TestCase):
-
-    def test_validate(self):
-        self.fail()
+        self.assertEqual(my_instance.retrieve(), {}, 'remote instance should be empty dict after delete.')

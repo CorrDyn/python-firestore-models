@@ -1,159 +1,13 @@
+import os
 import inspect
-from typing import Optional, Callable, Tuple, Type
+from typing import Optional
 
-from . utils import snake_case
+from fsmodels.common import _BaseModel, ValidationError
+from fsmodels.fields import Field, ModelField
+from . utils import snake_case, skip_if
 
-
-class ValidationError(BaseException):
-    pass
-
-
-class _BaseModel:
-    # all Model classes will be subclassed from this. Otherwise we would have circular requirements for type hints
-    # in methods that required BaseModel as type hints
-    pass
-
-
-class Field:
-
-    # name is overwritten by the Model containing the Field instance.
-    name = None
-    model_name = ''
-
-    def __init__(
-            self,
-            required: bool = False,
-            default=None,
-            validation: Optional[Callable[..., Tuple[bool, dict]]] = None):
-        """
-        :param required: Whether or not the field is required
-        :param default: What the field defaults to if no value is set
-        :param validation: return true if the value is valid, otherwise return false
-
-        Example:
-
-        def validate_date_created(date_created_value):
-            is_valid, error = isint(date_created_value), {}
-            if not is_valid:
-                error = {'error': 'value of date_created must be an integer number.'}
-            return is_valid, error
-
-        date_created = Field(required=True, default=time.time, validation=validate_date_created)
-        """
-        self.required = required
-
-        # make sure default is always a callable
-        if callable(default):
-            self._default = default
-        else:
-            self._default = lambda *args, **kwargs: default
-
-        # validation should either be None or a callable
-        if validation is not None:
-            if callable(validation):
-                self.validation = validation
-            else:
-                raise ValidationError(f'validation must be a callable, cannot be {validation}')
-        else:
-            # always passes if validation is None
-            self.validation = lambda x: (True, {})
-
-    def validate(self, value, raise_error: bool = True) -> (bool, dict):
-        """
-        Check that the passed value is not None if the Field instance is required, and calls the `validation`
-        function passed via Field.__init___. Raises an error if raise_error is `True` (default).
-
-        :param value: value to validate against the Field specifications
-        :param raise_error: whether or not to raise a ValidationError when an error is encountered.
-        :return (bool, dict): whether or not there was an error and a dict describing the errors
-
-        Example:
-
-        def validate_date_created(date_created_value):
-            is_valid, error = isint(date_created_value), {}
-            if not is_valid:
-                error = {'error': 'value of date_created must be an integer number.'}
-            return is_valid, error
-
-        date_created = Field(required=True, default=time.time, validation=validate_date_created)
-
-        date_created.validate(time.time()) # returns (True, {})
-        """
-        if self.required and not value:
-            message = f'{self.model_name} field {self.name} is required but received no default and no value.'
-            if raise_error:
-                raise ValidationError(message)
-            else:
-                return False, {'error': message}
-
-        validation_passed, errors = self.validation(value)
-
-        if raise_error:
-            if not validation_passed:
-                raise ValidationError(f'{self.model_name} value of {self.name} failed validation.')
-
-        # whether or not the validation passed and useful error information
-        return validation_passed, {}
-
-    def default(self, *args, **kwargs):
-        """
-        Returns the Field instance default. Returns None if the user did not specify a default value or default function.
-
-        :param args: arbitrary arguments to be used to be the default generating function specified in Field.__init__
-        :param kwargs: arbitrary kwargs to be used in the default generating function specified in Field.__init__
-        :return: the default Field value or the result of the default function
-
-        Example:
-
-        date_created = Field(required=True, default=time.time)
-
-        date_created.default() # returns time.time()
-        """
-        return self._default(*args, **kwargs)
-
-    def __repr__(self):
-        return f'<{self.__class__.__name__} name:{self.name} required:{self.required} default:{self.default} validation:{self.validation.__name__}>'
-
-
-class ModelField(Field):
-    """
-    Subclass of Field that makes reference to a subclass of BaseModel.
-
-    Used for one-to-many relationships.
-    """
-
-    def __init__(self, model: Type[_BaseModel], **kwargs):
-        # keeping track of this stuff so we can emit useful error messages
-        self.field_model = model
-        self.field_model_name = model.__name__
-        super(ModelField, self).__init__(**kwargs)
-
-    def validate(self, model_instance, raise_error: bool = True) -> (bool, dict):
-        """
-        Check to see that the passed model instance is a subclass of `model` parameter passed into ModelField.__init__,
-        then validate the fields of that model as usual. Parallels the validate method of the Field class
-        
-        :param model_instance: instance of model to validate (parallels `value` in validate method of Field class)
-        :param raise_error: whether or not an exception is raised on validation error
-        :return (bool, dict): whether or not there was an error and a dict describing the errors
-        """
-        is_valid_model, is_valid_field, model_errors, field_errors = True, {}, True, {}
-        # check that the passed model_instance is a subclass of the prescribed model from __init__
-        if isinstance(model_instance, self.field_model):
-            is_valid_model, model_errors = model_instance.validate(raise_error)
-        # the model instance is not None, this will emit an error. Otherwise, we check the
-        # field validation logic to determine whether this is a required field.
-        elif model_instance is not None:
-            message = f'{self.name} field failed validation. {model_instance} is {model_instance.__class__.__name__}, must be {self.field_model_name}'
-            if raise_error:
-                raise ValidationError(message)
-            else:
-                return False, {'error': message}
-        if is_valid_model:
-            is_valid_field, field_errors = super(ModelField, self).validate(model_instance, raise_error)
-        if is_valid_field and is_valid_model:
-            return True, {}
-        return False, {**model_errors, **field_errors}
+# whether we will should try to connect to firestore
+CAN_CONNECT = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', False)
 
 
 class BaseModel(_BaseModel):
@@ -321,12 +175,6 @@ class BaseModel(_BaseModel):
         for field_name, _ in field_tuple:
             setattr(self, field_name, dict_obj.get(field_name, None))
 
-    def clean(self):
-        raise NotImplemented
-
-    def save(self):
-        raise NotImplemented
-
 
 class Model(BaseModel):
     # TODO: implement relational firestore logic, add to __doc__
@@ -335,7 +183,7 @@ class Model(BaseModel):
 
     Example:
 
-    class Profile(BaseModel):
+    class Profile(Model):
         id = Field(required=True, default=uuid.uuid4)
         first_name = Field(required=True)
         last_name = Field(required=True)
@@ -343,7 +191,7 @@ class Model(BaseModel):
         class Meta:
             collection = 'artichoke'
 
-    class User(BaseModel):
+    class User(Model):
         id = Field(required=True, default=uuid.uuid4)
         username = Field(required=True)
         password = Field(required=True)
@@ -355,9 +203,9 @@ class Model(BaseModel):
     profile = Profile(first_name='Billy', last_name='Jean') # default id created on Model instance
     user = User(username='bjean', password='password', profile=profile) # default id created on Model instance
 
-    profile.save() # new profile created to collection named "artichoke"
-    profile.retrieve() # get newly created profile according to id
-    profile.delete() # delete newly created profile according to id
+    user.save() # new profile created to collection named "artichoke", new user added to collection named okey-dokey
+    user.retrieve() # get newly created user according to id
+    user.delete() # delete newly created profile according to id
 
 
     """
@@ -373,13 +221,21 @@ class Model(BaseModel):
 
     def _set_meta(self):
         self._meta_fields = [field for field in dir(self.Meta) if not field.startswith('__')]
+        if 'model_name' in self._meta_fields:
+            self._model_name = self.Meta.model_name
+        else:
+            self._model_name = snake_case(self.__class__.__name__)
         if 'collection' in self._meta_fields:
             self._collection = self.Meta.collection
         else:
-            self._collection = snake_case(self.__class__.__name__)
+            self._collection = self._model_name
 
+    @skip_if(not CAN_CONNECT, 'Most methods on Model will not work.')
     def _connect_client(self):
-        from .firestore import db
+        from google.cloud import firestore
+        db = firestore.Client()
+        self.firestore = firestore
+        self.db = db
         self.collection = db.collection(self._collection)
 
     @staticmethod
@@ -394,7 +250,7 @@ class Model(BaseModel):
         self.validate()
         return self.to_dict()
 
-    def save(self, patch: bool = True, additional_fields: Optional[dict] = None) -> dict:
+    def save(self, patch: bool = True, additional_fields: Optional[dict] = None, is_child: bool = False) -> dict:
         """
         Save the record to the relevant collection in firestore (self._collection). If there is an id, it tries to
         fetch the existing record first. If not, it creates a new record.
@@ -403,6 +259,7 @@ class Model(BaseModel):
                         overwriting the entire to match the instance)
         :param additional_fields: dictionary of any additional fields to be saved on the firestore record that are
                                     not defined explicitly on the model
+        :param is_child: whether or not the record being saved is a child of another record
         :return: dictionary with id and the result of the write operation from firestore
         """
         record = self.clean()
@@ -420,22 +277,27 @@ class Model(BaseModel):
 
         # we want to write the related model ids on the saved firestore record
         related_record_ids = {}
-        reverse_id_label = f'{self._collection}_id'
+        reverse_id_label = f'{self._model_name}_id'
         for model_field_instance_name in self._get_model_fields():
             field_name = model_field_instance_name.lstrip('_')
-            record.pop(field_name)  # prevent from saving this information on the record (is that what we want?)
             model_field_value = getattr(self, field_name)
             # sanity check
             assert model_field_value is None or isinstance(model_field_value, BaseModel)
             # save related model field in firestore and give us the id
-            model_field_record_id = None if model_field_value is None else str(model_field_value.save(
-                additional_fields={reverse_id_label: str(self.id)}
-            )['id'])
-            related_record_ids[f'{model_field_value._collection}_id'] = model_field_record_id
+            if model_field_value is not None:
+                res = model_field_value.save(patch=patch, additional_fields={reverse_id_label: self.id}, is_child=True)
+                model_field_record_id = res['id']
+                related_record_ids[f'{model_field_value._model_name}_id'] = model_field_record_id
 
         record.update(related_record_ids)
         if additional_fields:
             record.update(additional_fields)
+        # don't want to execute the below logic it if this record is the child of another record... in that case
+        # we already know that we need to fetch related fields
+        if not is_child:
+            # means that the nested related records stored in firestore might not be 100% accurate, and we should
+            # do an additional fetch for the related fields
+            record.update({'_should_fetch_related': patch and not new_record})
 
         if not new_record:
             if patch:
@@ -453,12 +315,13 @@ class Model(BaseModel):
         :param overwrite_local: whether or not to overwrite instance field values with firestore field values
         :return:
         """
-        if not self.id:
+        id_as_str = None if self.id is None else str(self.id)  # just to be sure that id is a str
+        if not id_as_str:
             raise ValidationError(f'Cannot retrieve document for {self._collection}; no id specified.')
-        document_dict = self.collection.document(str(self.id)).get().to_dict()
+        document_dict = self.collection.document(id_as_str).get().to_dict()
         if document_dict is None:
             return {}
-        document_dict.update({'id': self.id})
+        document_dict.update({'id': id_as_str})
         if overwrite_local:
             self.from_dict(document_dict)
         return document_dict
@@ -469,7 +332,9 @@ class Model(BaseModel):
 
         :return: dictionary describing the result of the delete operation from firestore
         """
-        if not self.id:
+
+        id_as_str = None if self.id is None else str(self.id)  # just to be sure that id is a str
+        if not id_as_str:
             raise ValidationError(f'Cannot call delete for {self._collection} document; no id specified.')
-        document_ref = self.collection.document(str(self.id))
+        document_ref = self.collection.document(str(id_as_str))
         return {'result': document_ref.delete()}
