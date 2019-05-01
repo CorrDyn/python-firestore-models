@@ -4,6 +4,19 @@ from fsmodels.common import ValidationError, _BaseModel
 
 
 class Field:
+    """
+    Field to be used on a Model
+
+    Example:
+
+    def validate_date_created(date_created_value):
+        is_valid, error = isint(date_created_value), {}
+        if not is_valid:
+            error = {'error': 'value of date_created must be an integer number.'}
+        return is_valid, error
+
+    date_created = Field(required=True, default=time.time, validation=validate_date_created)
+    """
     # name is overwritten by the Model containing the Field instance.
     name = None
     model_name = ''
@@ -17,16 +30,6 @@ class Field:
         :param required: Whether or not the field is required
         :param default: What the field defaults to if no value is set
         :param validation: return true if the value is valid, otherwise return false
-
-        Example:
-
-        def validate_date_created(date_created_value):
-            is_valid, error = isint(date_created_value), {}
-            if not is_valid:
-                error = {'error': 'value of date_created must be an integer number.'}
-            return is_valid, error
-
-        date_created = Field(required=True, default=time.time, validation=validate_date_created)
         """
         self.required = required
 
@@ -145,6 +148,9 @@ class ModelField(Field):
 
 
 class IDField(Field):
+    """
+    Adds default validation to Field a make sure that the `value` is a string
+    """
 
     def validate(self, value, raise_error: bool = True):
         if not isinstance(value, str):
