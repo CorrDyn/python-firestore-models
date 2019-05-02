@@ -15,6 +15,18 @@ I like Django's ORM.
 
 ## Basic Usage
 
+### Environment
+You will need to set up your environment in the usual way to have access to your resources on
+Google Cloud Platform.
+
+```
+import os
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '/path/to/credentials.json'
+```
+
+If you do not have this variable set, model instances will log a warning, and nothing will
+actually work with Firestore.
+
 ### Creating, Fetching, and Deleting
 ```
 from fsmodels.models import Model
@@ -94,7 +106,6 @@ print(user.retrieve())
 #  'first_name': 'Billy',
 #  'last_name': 'Mayes'},
 # 'password': 'plaintextpassword',
-# '_should_fetch_related': False,
 # 'username': 'bmayes',
 # 'profile_id': 'bd3ca41a-b6c4-4249-ac48-eb05db79bb3d',
 # 'id': '1e586d79-f2c0-4618-a7f7-95308a54298e'}

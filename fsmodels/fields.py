@@ -153,10 +153,10 @@ class IDField(Field):
     """
 
     def validate(self, value, raise_error: bool = True):
-        if not isinstance(value, str):
-            message = f'{self.model_name} value of {self.name} failed validation; {self.name} must be str instance.'
+        if value is not None and not isinstance(value, str):
+            message = f'{self.model_name} value of {self.name} failed validation; {self.name} must be str instance, not {value.__class__}.'
             if raise_error:
                 raise ValidationError(message)
             else:
                 return False, message
-        return super(IDField, self).validate(value, raise_error)
+        return super(IDField, self).validate(value, raise_error=raise_error)

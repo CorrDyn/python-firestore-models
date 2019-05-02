@@ -1,5 +1,6 @@
 import os
 import time
+import uuid
 
 from fsmodels import models
 from unittest import TestCase, skipIf
@@ -76,8 +77,8 @@ class TestBaseModel(TestCase):
             test_field4 = models.Field(required=True, validation=lambda x: (
             isinstance(x, int), {'detail': 'test_field4 must be an int.'}))
 
-        self.assertFalse(MyModel().is_valid, 'is_valid not working')
-        self.assertTrue(MyModel(test_field1=1, test_field4=7).is_valid, 'is_valid not working')
+        self.assertFalse(MyModel().is_valid, 'is_valid is not failing invalid model instances')
+        self.assertTrue(MyModel(test_field1=1, test_field4=7).is_valid, 'is_valid not passing valid model instances')
 
     def test_to_dict(self):
 
@@ -143,7 +144,7 @@ class TestModel(TestCase):
         remote_dict = my_instance.retrieve()
 
         for key, value in my_dict.items():
-            self.assertEqual(remote_dict[key], value, 'remote value did not equal local value.')
+            self.assertEqual(value, remote_dict[key], 'remote value did not equal local value.')
 
         my_instance.delete()
 

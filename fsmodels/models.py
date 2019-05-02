@@ -3,7 +3,7 @@ import inspect
 from typing import Optional
 
 from fsmodels.common import _BaseModel, ValidationError
-from fsmodels.fields import Field, ModelField
+from fsmodels.fields import Field, ModelField, IDField
 from . utils import snake_case, skip_if
 
 # whether we will should try to connect to firestore
@@ -20,7 +20,7 @@ class BaseModel(_BaseModel):
     user = User(username='bmayes', _validate_on_init=True)
 
     """
-    id = Field()
+    id = IDField()
 
     def _get_fields(self) -> frozenset:
         """
@@ -64,7 +64,7 @@ class BaseModel(_BaseModel):
             # actually `Field` instance becomes hidden
             setattr(self, f'_{field_name}', field)
             if _validate_on_init:
-                field.validate(field_value)
+                field.validate(field_value, raise_error=kwargs.get('raise_error', True))
 
     def _set_model_fields(self, _validate_on_init, kwargs):
         self._model_field_names = self._get_model_fields()
@@ -78,7 +78,7 @@ class BaseModel(_BaseModel):
             # actually `Field` instance becomes hidden
             setattr(self, f'_{field_name}', field)
             if _validate_on_init:
-                field.validate(field_value)
+                field.validate(field_value, raise_error=kwargs.get('raise_error', True))
 
     def __init__(self, _validate_on_init: bool = False, **kwargs):
         f"""
@@ -266,46 +266,56 @@ class Model(BaseModel):
 
         # after this if/else branch, we know for sure that self.id will refer to an id in firestore
         if record.get('id', False):
-            # remove id from record so it is not saved as an attribute in firestore,
-            # use it to get an existing document or create a new document with corresponding ID.
-            document_ref = self.collection.document(str(record.pop('id')))
+            # use id to get an existing document or create a new document with corresponding ID.
+            document_ref = self.collection.document(record.get('id'))
             new_record = not self._document_exists(document_ref.get())
         else:
             new_record = True
             document_ref = self.collection.document()
             self.id = document_ref.id
+            # we like to have the ID available on the record;
+            # it prevents us from having to fetch it as an attribute during usage
+            record['id'] = self.id
 
-        # we want to write the related model ids on the saved firestore record
-        related_record_ids = {}
-        reverse_id_label = f'{self._model_name}_id'
         for model_field_instance_name in self._get_model_fields():
-            field_name = model_field_instance_name.lstrip('_')
-            model_field_value = getattr(self, field_name)
+            model_field_name = model_field_instance_name[1:]  # remove single leading underscore
+            model_field_instance = getattr(self, model_field_instance_name)
+            model_field_value = getattr(self, model_field_name)
+            # prevent model fields from being saved as something other than a subcollection
+            record.pop(model_field_name)
             # sanity check
             assert model_field_value is None or isinstance(model_field_value, BaseModel)
-            # save related model field in firestore and give us the id
+            # save the related model field to a document subcollection. check that the related model
+            # already has an id. if so, we use it.
             if model_field_value is not None:
-                res = model_field_value.save(patch=patch, additional_fields={reverse_id_label: self.id}, is_child=True)
-                model_field_record_id = res['id']
-                related_record_ids[f'{model_field_value._model_name}_id'] = model_field_record_id
+                subcollection_name = model_field_value._collection
+                if model_field_value.id:
+                    if patch and not new_record:
+                        document_ref.collection(subcollection_name).document(model_field_value.id)\
+                            .update(model_field_value.to_dict())
+                    else:
+                        document_ref.collection(subcollection_name).document(model_field_value.id) \
+                            .set(model_field_value.to_dict())
+                else:
+                    new_document = document_ref.collection(subcollection_name).document()
+                    # we like to have the ID available on the record;
+                    # it prevents us from having to fetch it as an attribute during usage
+                    model_field_value.id = new_document.id
+                    document_ref.collection(subcollection_name).document().set(model_field_value.to_dict())
 
-        record.update(related_record_ids)
         if additional_fields:
             record.update(additional_fields)
-        # don't want to execute the below logic it if this record is the child of another record... in that case
-        # we already know that we need to fetch related fields
-        if not is_child:
-            # means that the nested related records stored in firestore might not be 100% accurate, and we should
-            # do an additional fetch for the related fields
-            record.update({'_should_fetch_related': patch and not new_record})
 
-        if not new_record:
-            if patch:
-                return {'id': self.id, 'result': document_ref.update(record)}
-            else:
-                return {'id': self.id, 'result': document_ref.set(record)}
+        if not new_record and patch:
+            # only valid criteria for PATCHing an existing record instead
+            # of setting it outright
+            res = document_ref.update(record)
+            self.id = document_ref.id
+        else:
+            res = document_ref.set(record)
+            self.id = document_ref.id
 
-        return {'id': self.id, 'result': document_ref.set(record)}
+        return {'id': self.id, 'result': res}
 
     def retrieve(self, overwrite_local: bool = False) -> dict:
         """
@@ -318,12 +328,33 @@ class Model(BaseModel):
         id_as_str = None if self.id is None else str(self.id)  # just to be sure that id is a str
         if not id_as_str:
             raise ValidationError(f'Cannot retrieve document for {self._collection}; no id specified.')
+        document_ref = self.collection.document(id_as_str)
         document_dict = self.collection.document(id_as_str).get().to_dict()
         if document_dict is None:
             return {}
-        document_dict.update({'id': id_as_str})
+        full_subcollection = {}
+        for subcollection in document_ref.collections():
+            subcollection_name = subcollection._path[-1]
+            subcollection_document_list = []
+            full_subcollection[subcollection_name] = subcollection_document_list
+            for subcollection_document_ref in subcollection.list_documents():
+                subcollection_document_list.append(subcollection_document_ref.get().to_dict())
+            if len(subcollection_document_list) == 1:
+                full_subcollection[subcollection_name] = subcollection_document_list[0]
+
+        document_dict.update(full_subcollection)
+
         if overwrite_local:
+            # use from_dict on self, and then use from_dict on each of the related model fields
             self.from_dict(document_dict)
+            for related_model_field_name in self._get_model_fields():
+                related_model_name = related_model_field_name[1:]  # remove leading underscore
+                related_model = getattr(self, related_model_name)
+                # if there is not an instance of the related model, we want to create one!
+                if related_model is None:
+                    related_model = getattr(self, related_model_field_name).field_model()
+                related_model.from_dict(document_dict.get(related_model_name, {}))
+                setattr(self, related_model_name, related_model)
         return document_dict
 
     def delete(self) -> dict:
