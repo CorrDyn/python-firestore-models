@@ -1,4 +1,4 @@
-## Description 
+## python-firestore-models
 
 This library serves as a wrapper around Google's Firestore. It implements validation, type checking facilities, 
 and relational (work in progress) model logic.
