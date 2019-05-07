@@ -10,7 +10,7 @@ the way you would achieve it with an ORM. The library's API borrows several desi
 I like Django's ORM.
 
 ## Installation
-`pip install <library_name>`
+`pip install fsmodels`
 
 
 ## Basic Usage
