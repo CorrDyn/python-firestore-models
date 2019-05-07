@@ -1,15 +1,540 @@
-<!--
-This file allows our autodoc configurations to play nice with github pages.
-We simply redirect a vistor to the actual docs index.
--->
+
+
 <!DOCTYPE html>
-<html lang="en">
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=./_build/html/index.html" />
-    <title>Python Firestore Models (Redirect)</title>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Python Firestore Models &mdash; Python Firestore Models  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="python-firestore-models" href="readme.html" /> 
 </head>
-<body>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> Python Firestore Models
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">python-firestore-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#when-to-use">When to Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#advanced-usage">Advanced Usage</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Python Firestore Models</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>Python Firestore Models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="python-firestore-models">
+<h1>Python Firestore Models<a class="headerlink" href="#python-firestore-models" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">python-firestore-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#when-to-use">When to Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#basic-usage">Basic Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#environment">Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#creating-fetching-and-deleting">Creating, Fetching, and Deleting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#edit-existing">Edit Existing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#delete-existing">Delete Existing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#advanced-usage">Advanced Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#one-to-one-relationships">One to One Relationships</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="source-docs">
+<h1>Source Docs<a class="headerlink" href="#source-docs" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-fsmodels.models">
+<span id="models"></span><h2>Models<a class="headerlink" href="#module-fsmodels.models" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fsmodels.models.BaseModel">
+<em class="property">class </em><code class="descclassname">fsmodels.models.</code><code class="descname">BaseModel</code><span class="sig-paren">(</span><em>_validate_on_init: bool = False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fsmodels/models.html#BaseModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fsmodels.models.BaseModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">&#39;bmayes&#39;</span><span class="p">,</span> <span class="n">_validate_on_init</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="fsmodels.models.BaseModel.from_dict">
+<code class="descname">from_dict</code><span class="sig-paren">(</span><em>dict_obj: dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fsmodels/models.html#BaseModel.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fsmodels.models.BaseModel.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the values of fields on the Model instance to correspond to the keys in the dictionary. Mutates the
+Model instance in place and returns nothing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dict_obj</strong> – dict with key, value pairs corresponding to fields defined on the Model</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">generate_next_username</span><span class="p">)</span>
+
+<span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="p">()</span> <span class="c1"># username.default() is called on __init__</span>
+<span class="n">user_dict</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="c1">#  {&#39;username&#39;: &#39;user_3&#39;}</span>
+<span class="n">user2</span> <span class="o">=</span> <span class="n">User</span><span class="p">()</span>
+<span class="n">user2</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">user_dict</span><span class="p">)</span>
+<span class="n">user2</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="c1"># returns {&#39;username&#39;: &#39;user_3&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="fsmodels.models.BaseModel.to_dict">
+<code class="descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/fsmodels/models.html#BaseModel.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fsmodels.models.BaseModel.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines all Field instances defined on the Model and returns a dictionary with field names as keys and
+field values as values.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">generate_next_username</span><span class="p">)</span>
+
+<span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="p">()</span> <span class="c1"># username.default() is called on __init__</span>
+<span class="n">user</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="c1"># returns {&#39;username&#39;: &#39;user_n&#39;}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fsmodels.models.BaseModel.validate">
+<code class="descname">validate</code><span class="sig-paren">(</span><em>raise_error: bool = True) -&gt; (&lt;class 'bool'&gt;</em>, <em>&lt;class 'dict'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fsmodels/models.html#BaseModel.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fsmodels.models.BaseModel.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call all the validation methods of the fields defined on the Model subclass and return (True, {}) if they
+are all valid. Otherwise, raises an error (see raise_error) or returns (False, description_of_errors&lt;dict&gt;)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> – whether or not validation errors of Model fields will raise an exception</p>
+</dd>
+<dt class="field-even">Return (bool, dict)</dt>
+<dd class="field-even"><p>whether or not there was an error and a dict describing the errors</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="p">()</span>
+<span class="n">user</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">raise_error</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span> <span class="c1"># returns (False, description_of_errors&lt;dict&gt;) because username is required</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fsmodels.models.Model">
+<em class="property">class </em><code class="descclassname">fsmodels.models.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fsmodels/models.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fsmodels.models.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connects BaseModel to a firestore collection and implements basic model convenience methods.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Profile</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">)</span>
+    <span class="n">first_name</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">last_name</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">collection</span> <span class="o">=</span> <span class="s1">&#39;artichoke&#39;</span>
+
+<span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">)</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">password</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">profile</span> <span class="o">=</span> <span class="n">ModelField</span><span class="p">(</span><span class="n">Profile</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">collection</span> <span class="o">=</span> <span class="s1">&#39;okey-dokey&#39;</span>
+
+<span class="n">profile</span> <span class="o">=</span> <span class="n">Profile</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s1">&#39;Billy&#39;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s1">&#39;Jean&#39;</span><span class="p">)</span> <span class="c1"># default id created on Model instance</span>
+<span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">&#39;bjean&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;password&#39;</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="n">profile</span><span class="p">)</span> <span class="c1"># default id created on Model instance</span>
+
+<span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span> <span class="c1"># new profile created to collection named &quot;artichoke&quot;, new user added to collection named okey-dokey</span>
+<span class="n">user</span><span class="o">.</span><span class="n">retrieve</span><span class="p">()</span> <span class="c1"># get newly created user according to id</span>
+<span class="n">user</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span> <span class="c1"># delete newly created profile according to id</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="fsmodels.models.Model.clean">
+<code class="descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/fsmodels/models.html#Model.clean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fsmodels.models.Model.clean" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fsmodels.models.Model.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/fsmodels/models.html#Model.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fsmodels.models.Model.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the firestore record corresponding to the id defined on the instance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary describing the result of the delete operation from firestore</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fsmodels.models.Model.retrieve">
+<code class="descname">retrieve</code><span class="sig-paren">(</span><em>overwrite_local: bool = False</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/fsmodels/models.html#Model.retrieve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fsmodels.models.Model.retrieve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the record corresponding to the id defined on the instance. If overwrite_local is True, the instance
+field values are overwritten with the firestore record values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>overwrite_local</strong> – whether or not to overwrite instance field values with firestore field values</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="fsmodels.models.Model.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>patch: bool = True</em>, <em>additional_fields: Optional[dict] = None</em>, <em>is_child: bool = False</em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/fsmodels/models.html#Model.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fsmodels.models.Model.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the record to the relevant collection in firestore (self._collection). If there is an id, it tries to
+fetch the existing record first. If not, it creates a new record.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>patch</strong> – only update the firestore record according to the values defined on the instance (rather than
+overwriting the entire to match the instance)</p></li>
+<li><p><strong>additional_fields</strong> – dictionary of any additional fields to be saved on the firestore record that are
+not defined explicitly on the model</p></li>
+<li><p><strong>is_child</strong> – whether or not the record being saved is a child of another record</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dictionary with id and the result of the write operation from firestore</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-fsmodels.fields">
+<span id="fields"></span><h2>Fields<a class="headerlink" href="#module-fsmodels.fields" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fsmodels.fields.Field">
+<em class="property">class </em><code class="descclassname">fsmodels.fields.</code><code class="descname">Field</code><span class="sig-paren">(</span><em>required: bool = False, default=None, validation: Optional[Callable[[...], Tuple[bool, dict]]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fsmodels/fields.html#Field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fsmodels.fields.Field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field to be used on a Model</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">validate_date_created</span><span class="p">(</span><span class="n">date_created_value</span><span class="p">):</span>
+    <span class="n">is_valid</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">isint</span><span class="p">(</span><span class="n">date_created_value</span><span class="p">),</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span><span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;value of date_created must be an integer number.&#39;</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">is_valid</span><span class="p">,</span> <span class="n">error</span>
+
+<span class="n">date_created</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">validation</span><span class="o">=</span><span class="n">validate_date_created</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="fsmodels.fields.Field.default">
+<code class="descname">default</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fsmodels/fields.html#Field.default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fsmodels.fields.Field.default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Field instance default. Returns None if the user did not specify a default value or default function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – arbitrary arguments to be used to be the default generating function specified in Field.__init__</p></li>
+<li><p><strong>kwargs</strong> – arbitrary kwargs to be used in the default generating function specified in Field.__init__</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the default Field value or the result of the default function</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">date_created</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
+
+<span class="n">date_created</span><span class="o">.</span><span class="n">default</span><span class="p">()</span> <span class="c1"># returns time.time()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="fsmodels.fields.Field.validate">
+<code class="descname">validate</code><span class="sig-paren">(</span><em>value</em>, <em>raise_error: bool = True) -&gt; (&lt;class 'bool'&gt;</em>, <em>&lt;class 'dict'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fsmodels/fields.html#Field.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fsmodels.fields.Field.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check that the passed value is not None if the Field instance is required, and calls the <cite>validation</cite>
+function passed via Field.__init___. Raises an error if raise_error is <cite>True</cite> (default).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – value to validate against the Field specifications</p></li>
+<li><p><strong>raise_error</strong> – whether or not to raise a ValidationError when an error is encountered.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return (bool, dict)</dt>
+<dd class="field-even"><p>whether or not there was an error and a dict describing the errors</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">validate_date_created</span><span class="p">(</span><span class="n">date_created_value</span><span class="p">):</span>
+    <span class="n">is_valid</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">isint</span><span class="p">(</span><span class="n">date_created_value</span><span class="p">),</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span><span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;value of date_created must be an integer number.&#39;</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">is_valid</span><span class="p">,</span> <span class="n">error</span>
+
+<span class="n">date_created</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">validation</span><span class="o">=</span><span class="n">validate_date_created</span><span class="p">)</span>
+
+<span class="n">date_created</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span> <span class="c1"># returns (True, {})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fsmodels.fields.IDField">
+<em class="property">class </em><code class="descclassname">fsmodels.fields.</code><code class="descname">IDField</code><span class="sig-paren">(</span><em>required: bool = False, default=None, validation: Optional[Callable[[...], Tuple[bool, dict]]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fsmodels/fields.html#IDField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fsmodels.fields.IDField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds default validation to Field a make sure that the <cite>value</cite> is a string</p>
+<dl class="method">
+<dt id="fsmodels.fields.IDField.validate">
+<code class="descname">validate</code><span class="sig-paren">(</span><em>value</em>, <em>raise_error: bool = True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fsmodels/fields.html#IDField.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fsmodels.fields.IDField.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check that the passed value is not None if the Field instance is required, and calls the <cite>validation</cite>
+function passed via Field.__init___. Raises an error if raise_error is <cite>True</cite> (default).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – value to validate against the Field specifications</p></li>
+<li><p><strong>raise_error</strong> – whether or not to raise a ValidationError when an error is encountered.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return (bool, dict)</dt>
+<dd class="field-even"><p>whether or not there was an error and a dict describing the errors</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">validate_date_created</span><span class="p">(</span><span class="n">date_created_value</span><span class="p">):</span>
+    <span class="n">is_valid</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">isint</span><span class="p">(</span><span class="n">date_created_value</span><span class="p">),</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span><span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;value of date_created must be an integer number.&#39;</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">is_valid</span><span class="p">,</span> <span class="n">error</span>
+
+<span class="n">date_created</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">validation</span><span class="o">=</span><span class="n">validate_date_created</span><span class="p">)</span>
+
+<span class="n">date_created</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span> <span class="c1"># returns (True, {})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="fsmodels.fields.ModelField">
+<em class="property">class </em><code class="descclassname">fsmodels.fields.</code><code class="descname">ModelField</code><span class="sig-paren">(</span><em>model: Type[fsmodels.common._BaseModel], **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fsmodels/fields.html#ModelField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fsmodels.fields.ModelField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subclass of Field that makes reference to a subclass of BaseModel.</p>
+<p>Used for one-to-many relationships.</p>
+<dl class="method">
+<dt id="fsmodels.fields.ModelField.validate">
+<code class="descname">validate</code><span class="sig-paren">(</span><em>model_instance</em>, <em>raise_error: bool = True) -&gt; (&lt;class 'bool'&gt;</em>, <em>&lt;class 'dict'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fsmodels/fields.html#ModelField.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fsmodels.fields.ModelField.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check to see that the passed model instance is a subclass of <cite>model</cite> parameter passed into ModelField.__init__,
+then validate the fields of that model as usual. Parallels the validate method of the Field class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_instance</strong> – instance of model to validate (parallels <cite>value</cite> in validate method of Field class)</p></li>
+<li><p><strong>raise_error</strong> – whether or not an exception is raised on validation error</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return (bool, dict)</dt>
+<dd class="field-even"><p>whether or not there was an error and a dict describing the errors</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="readme.html" class="btn btn-neutral float-right" title="python-firestore-models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Correlation Dynamics
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
