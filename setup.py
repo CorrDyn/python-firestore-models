@@ -74,5 +74,8 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=['google-cloud-firestore'],
+    extras_require={
+        'dev': ['sphinx', 'guzzle-sphinx-theme']
+    },
     python_requires='>=3.6',
 )

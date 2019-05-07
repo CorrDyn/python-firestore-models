@@ -1,0 +1,574 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fsmodels.models &mdash; Python Firestore Models  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Python Firestore Models
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">python-firestore-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#when-to-use">When to Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#advanced-usage">Advanced Usage</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Python Firestore Models</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>fsmodels.models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fsmodels.models</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Optional</span>
+
+<span class="kn">from</span> <span class="nn">fsmodels.common</span> <span class="k">import</span> <span class="n">_BaseModel</span><span class="p">,</span> <span class="n">ValidationError</span>
+<span class="kn">from</span> <span class="nn">fsmodels.fields</span> <span class="k">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">ModelField</span><span class="p">,</span> <span class="n">IDField</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="n">utils</span> <span class="kn">import</span> <span class="nn">snake_case</span><span class="o">,</span> <span class="nn">skip_if</span>
+
+<span class="c1"># whether we will should try to connect to firestore</span>
+<span class="n">CAN_CONNECT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;GOOGLE_APPLICATION_CREDENTIALS&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="BaseModel"><a class="viewcode-back" href="../../index.html#fsmodels.models.BaseModel">[docs]</a><span class="k">class</span> <span class="nc">BaseModel</span><span class="p">(</span><span class="n">_BaseModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        class User(BaseModel):</span>
+<span class="sd">            username = Field(required=True)</span>
+
+<span class="sd">        user = User(username=&#39;bmayes&#39;, _validate_on_init=True)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">IDField</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_get_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">frozenset</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Used to keep track of all Field instances defined on a subclass of BaseModel.</span>
+
+<span class="sd">        :return: hashable set (frozenset) of all fields defined on the BaseModel subclass</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">field_attr_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">field_attr_name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getattr_static</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_attr_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">ModelField</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">Field</span><span class="p">):</span>
+                <span class="n">field_attr_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">field_attr_name</span><span class="p">)</span>
+        <span class="c1"># frozenset will always return set items in the same order regardless of the order</span>
+        <span class="c1"># that they are added. This results in hash-safe sets</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">field_attr_names</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_model_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">frozenset</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Used to keep track of all ModelField instances defined on a subclass of BaseModel.</span>
+
+<span class="sd">        :return: hashable set (frozenset) of all ModelFields defined on the BaseModel subclass</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">field_attr_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">field_attr_name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getattr_static</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_attr_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">ModelField</span><span class="p">):</span>
+                <span class="n">field_attr_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">field_attr_name</span><span class="p">)</span>
+        <span class="c1"># frozenset will always return set items in the same order regardless of the order</span>
+        <span class="c1"># that they are added. This results in hash-safe sets</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">field_attr_names</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_validate_on_init</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_field_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_fields</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_field_names</span><span class="p">:</span>
+            <span class="n">field</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span>
+            <span class="n">field</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">field_name</span>
+            <span class="n">field_value</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field_name</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">default</span><span class="p">())</span>
+            <span class="c1"># replaces the original field with the corresponding value</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">field_value</span><span class="p">)</span>
+            <span class="c1"># actually `Field` instance becomes hidden</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;_</span><span class="si">{field_name}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_validate_on_init</span><span class="p">:</span>
+                <span class="n">field</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">field_value</span><span class="p">,</span> <span class="n">raise_error</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;raise_error&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_set_model_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_validate_on_init</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_field_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_model_fields</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_field_names</span><span class="p">:</span>
+            <span class="n">field</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span>
+            <span class="n">field</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">field_name</span>
+            <span class="n">field_value</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field_name</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">default</span><span class="p">())</span>
+            <span class="c1"># replaces the original field with the corresponding value</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">field_value</span><span class="p">)</span>
+            <span class="c1"># actually `Field` instance becomes hidden</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;_</span><span class="si">{field_name}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_validate_on_init</span><span class="p">:</span>
+                <span class="n">field</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">field_value</span><span class="p">,</span> <span class="n">raise_error</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;raise_error&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_validate_on_init</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Sets all Field instances defined on a BaseModel subclass as private members to the BaseModel subclass instance.</span>
+<span class="s2">        Then creates public members with the value of Field&lt;instance&gt;.default(*args, **kwargs)</span>
+
+<span class="s2">        :param _validate_on_init: Whether or not to call the .validate() function on init</span>
+<span class="s2">        :param kwargs: values corresponding to fields defined on the subclass of BaseModel.</span>
+
+<span class="s2">        </span><span class="si">{self.__class__.__doc__}</span><span class="s2"></span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_fields</span><span class="p">(</span><span class="n">_validate_on_init</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_model_fields</span><span class="p">(</span><span class="n">_validate_on_init</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">raise_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+<div class="viewcode-block" id="BaseModel.validate"><a class="viewcode-back" href="../../index.html#fsmodels.models.BaseModel.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raise_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call all the validation methods of the fields defined on the Model subclass and return (True, {}) if they</span>
+<span class="sd">        are all valid. Otherwise, raises an error (see raise_error) or returns (False, description_of_errors&lt;dict&gt;)</span>
+
+<span class="sd">        :param raise_error: whether or not validation errors of Model fields will raise an exception</span>
+<span class="sd">        :return (bool, dict): whether or not there was an error and a dict describing the errors</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            class User(BaseModel):</span>
+<span class="sd">                username = Field(required=True)</span>
+
+<span class="sd">            user = User()</span>
+<span class="sd">            user.validate(raise_error=False) # returns (False, description_of_errors&lt;dict&gt;) because username is required</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">error_map</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_field_names</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_field_names</span><span class="p">):</span>
+            <span class="c1"># The `Field` version of the field is now private</span>
+            <span class="n">field_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;_</span><span class="si">{field_name}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">field_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span>
+            <span class="n">is_valid</span><span class="p">,</span> <span class="n">validation_error</span> <span class="o">=</span> <span class="n">field_obj</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">field_value</span><span class="p">,</span> <span class="n">raise_error</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span><span class="p">:</span>
+                <span class="n">error_map</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">validation_error</span>
+        <span class="c1"># whether all fields passed validation, and if not, why not</span>
+        <span class="n">model_invalid</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">error_map</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">raise_error</span> <span class="ow">and</span> <span class="n">model_invalid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="n">error_map</span><span class="p">)</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="n">model_invalid</span><span class="p">,</span> <span class="n">error_map</span></div>
+
+<div class="viewcode-block" id="BaseModel.to_dict"><a class="viewcode-back" href="../../index.html#fsmodels.models.BaseModel.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determines all Field instances defined on the Model and returns a dictionary with field names as keys and</span>
+<span class="sd">        field values as values.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            class User(BaseModel):</span>
+<span class="sd">                username = Field(required=True, default=generate_next_username)</span>
+
+<span class="sd">            user = User() # username.default() is called on __init__</span>
+<span class="sd">            user.to_dict() # returns {&#39;username&#39;: &#39;user_n&#39;}</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">field_tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">field_name</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">))</span> <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_field_names</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_field_names</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">field_name</span><span class="p">:</span> <span class="n">field_value</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">field_value</span><span class="p">,</span> <span class="s1">&#39;to_dict&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">field_value</span>
+            <span class="k">for</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">field_value</span> <span class="ow">in</span> <span class="n">field_tuple</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="BaseModel.from_dict"><a class="viewcode-back" href="../../index.html#fsmodels.models.BaseModel.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dict_obj</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="c1"># TODO: Sanity check. Should we discard unused keys or should we raise errors?</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the values of fields on the Model instance to correspond to the keys in the dictionary. Mutates the</span>
+<span class="sd">        Model instance in place and returns nothing.</span>
+
+<span class="sd">        :param dict_obj: dict with key, value pairs corresponding to fields defined on the Model</span>
+<span class="sd">        :return:</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            class User(BaseModel):</span>
+<span class="sd">                username = Field(required=True, default=generate_next_username)</span>
+
+<span class="sd">            user = User() # username.default() is called on __init__</span>
+<span class="sd">            user_dict = user.to_dict() #  {&#39;username&#39;: &#39;user_3&#39;}</span>
+<span class="sd">            user2 = User()</span>
+<span class="sd">            user2.from_dict(user_dict)</span>
+<span class="sd">            user2.to_dict() # returns {&#39;username&#39;: &#39;user_3&#39;}</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">field_tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">field_name</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">))</span> <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_field_names</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">field_tuple</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">dict_obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../index.html#fsmodels.models.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="c1"># TODO: implement relational firestore logic, add to __doc__</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Connects BaseModel to a firestore collection and implements basic model convenience methods.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        class Profile(Model):</span>
+<span class="sd">            id = Field(required=True, default=uuid.uuid4)</span>
+<span class="sd">            first_name = Field(required=True)</span>
+<span class="sd">            last_name = Field(required=True)</span>
+
+<span class="sd">            class Meta:</span>
+<span class="sd">                collection = &#39;artichoke&#39;</span>
+
+<span class="sd">        class User(Model):</span>
+<span class="sd">            id = Field(required=True, default=uuid.uuid4)</span>
+<span class="sd">            username = Field(required=True)</span>
+<span class="sd">            password = Field(required=True)</span>
+<span class="sd">            profile = ModelField(Profile, required=True)</span>
+
+<span class="sd">            class Meta:</span>
+<span class="sd">                collection = &#39;okey-dokey&#39;</span>
+
+<span class="sd">        profile = Profile(first_name=&#39;Billy&#39;, last_name=&#39;Jean&#39;) # default id created on Model instance</span>
+<span class="sd">        user = User(username=&#39;bjean&#39;, password=&#39;password&#39;, profile=profile) # default id created on Model instance</span>
+
+<span class="sd">        user.save() # new profile created to collection named &quot;artichoke&quot;, new user added to collection named okey-dokey</span>
+<span class="sd">        user.retrieve() # get newly created user according to id</span>
+<span class="sd">        user.delete() # delete newly created profile according to id</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="c1"># it&#39;s okay if there&#39;s no Meta</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_meta</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connect_client</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_set_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_meta_fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">field</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Meta</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="s1">&#39;model_name&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meta_fields</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Meta</span><span class="o">.</span><span class="n">model_name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span> <span class="o">=</span> <span class="n">snake_case</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;collection&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meta_fields</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_collection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Meta</span><span class="o">.</span><span class="n">collection</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_collection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span>
+
+    <span class="nd">@skip_if</span><span class="p">(</span><span class="ow">not</span> <span class="n">CAN_CONNECT</span><span class="p">,</span> <span class="s1">&#39;Most methods on Model will not work.&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_connect_client</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">google.cloud</span> <span class="k">import</span> <span class="n">firestore</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="n">firestore</span><span class="o">.</span><span class="n">Client</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">firestore</span> <span class="o">=</span> <span class="n">firestore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">db</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collection</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">collection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_collection</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_document_exists</span><span class="p">(</span><span class="n">document</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">document</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+
+<div class="viewcode-block" id="Model.clean"><a class="viewcode-back" href="../../index.html#fsmodels.models.Model.clean">[docs]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="c1"># TODO revisit clean to do more than just validate</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Model.save"><a class="viewcode-back" href="../../index.html#fsmodels.models.Model.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">patch</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">additional_fields</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">is_child</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the record to the relevant collection in firestore (self._collection). If there is an id, it tries to</span>
+<span class="sd">        fetch the existing record first. If not, it creates a new record.</span>
+
+<span class="sd">        :param patch: only update the firestore record according to the values defined on the instance (rather than</span>
+<span class="sd">                        overwriting the entire to match the instance)</span>
+<span class="sd">        :param additional_fields: dictionary of any additional fields to be saved on the firestore record that are</span>
+<span class="sd">                                    not defined explicitly on the model</span>
+<span class="sd">        :param is_child: whether or not the record being saved is a child of another record</span>
+<span class="sd">        :return: dictionary with id and the result of the write operation from firestore</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+
+        <span class="c1"># after this if/else branch, we know for sure that self.id will refer to an id in firestore</span>
+        <span class="k">if</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="c1"># use id to get an existing document or create a new document with corresponding ID.</span>
+            <span class="n">document_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">document</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">))</span>
+            <span class="n">new_record</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_document_exists</span><span class="p">(</span><span class="n">document_ref</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_record</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">document_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">document</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">document_ref</span><span class="o">.</span><span class="n">id</span>
+            <span class="c1"># we like to have the ID available on the record;</span>
+            <span class="c1"># it prevents us from having to fetch it as an attribute during usage</span>
+            <span class="n">record</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span>
+
+        <span class="k">for</span> <span class="n">model_field_instance_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_model_fields</span><span class="p">():</span>
+            <span class="n">model_field_name</span> <span class="o">=</span> <span class="n">model_field_instance_name</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># remove single leading underscore</span>
+            <span class="n">model_field_instance</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_field_instance_name</span><span class="p">)</span>
+            <span class="n">model_field_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_field_name</span><span class="p">)</span>
+            <span class="c1"># prevent model fields from being saved as something other than a subcollection</span>
+            <span class="n">record</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">model_field_name</span><span class="p">)</span>
+            <span class="c1"># sanity check</span>
+            <span class="k">assert</span> <span class="n">model_field_value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_field_value</span><span class="p">,</span> <span class="n">BaseModel</span><span class="p">)</span>
+            <span class="c1"># save the related model field to a document subcollection. check that the related model</span>
+            <span class="c1"># already has an id. if so, we use it.</span>
+            <span class="k">if</span> <span class="n">model_field_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">subcollection_name</span> <span class="o">=</span> <span class="n">model_field_value</span><span class="o">.</span><span class="n">_collection</span>
+                <span class="k">if</span> <span class="n">model_field_value</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">patch</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">new_record</span><span class="p">:</span>
+                        <span class="n">document_ref</span><span class="o">.</span><span class="n">collection</span><span class="p">(</span><span class="n">subcollection_name</span><span class="p">)</span><span class="o">.</span><span class="n">document</span><span class="p">(</span><span class="n">model_field_value</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>\
+                            <span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">model_field_value</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">document_ref</span><span class="o">.</span><span class="n">collection</span><span class="p">(</span><span class="n">subcollection_name</span><span class="p">)</span><span class="o">.</span><span class="n">document</span><span class="p">(</span><span class="n">model_field_value</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> \
+                            <span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">model_field_value</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">new_document</span> <span class="o">=</span> <span class="n">document_ref</span><span class="o">.</span><span class="n">collection</span><span class="p">(</span><span class="n">subcollection_name</span><span class="p">)</span><span class="o">.</span><span class="n">document</span><span class="p">()</span>
+                    <span class="c1"># we like to have the ID available on the record;</span>
+                    <span class="c1"># it prevents us from having to fetch it as an attribute during usage</span>
+                    <span class="n">model_field_value</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">new_document</span><span class="o">.</span><span class="n">id</span>
+                    <span class="n">document_ref</span><span class="o">.</span><span class="n">collection</span><span class="p">(</span><span class="n">subcollection_name</span><span class="p">)</span><span class="o">.</span><span class="n">document</span><span class="p">()</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">model_field_value</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="n">additional_fields</span><span class="p">:</span>
+            <span class="n">record</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">additional_fields</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">new_record</span> <span class="ow">and</span> <span class="n">patch</span><span class="p">:</span>
+            <span class="c1"># only valid criteria for PATCHing an existing record instead</span>
+            <span class="c1"># of setting it outright</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">document_ref</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">document_ref</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">document_ref</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">document_ref</span><span class="o">.</span><span class="n">id</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">res</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="Model.retrieve"><a class="viewcode-back" href="../../index.html#fsmodels.models.Model.retrieve">[docs]</a>    <span class="k">def</span> <span class="nf">retrieve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overwrite_local</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the record corresponding to the id defined on the instance. If overwrite_local is True, the instance</span>
+<span class="sd">        field values are overwritten with the firestore record values.</span>
+
+<span class="sd">        :param overwrite_local: whether or not to overwrite instance field values with firestore field values</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">id_as_str</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>  <span class="c1"># just to be sure that id is a str</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">id_as_str</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Cannot retrieve document for </span><span class="si">{self._collection}</span><span class="s1">; no id specified.&#39;</span><span class="p">)</span>
+        <span class="n">document_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">document</span><span class="p">(</span><span class="n">id_as_str</span><span class="p">)</span>
+        <span class="n">document_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">document</span><span class="p">(</span><span class="n">id_as_str</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">document_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+        <span class="n">full_subcollection</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">subcollection</span> <span class="ow">in</span> <span class="n">document_ref</span><span class="o">.</span><span class="n">collections</span><span class="p">():</span>
+            <span class="n">subcollection_name</span> <span class="o">=</span> <span class="n">subcollection</span><span class="o">.</span><span class="n">_path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">subcollection_document_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">full_subcollection</span><span class="p">[</span><span class="n">subcollection_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">subcollection_document_list</span>
+            <span class="k">for</span> <span class="n">subcollection_document_ref</span> <span class="ow">in</span> <span class="n">subcollection</span><span class="o">.</span><span class="n">list_documents</span><span class="p">():</span>
+                <span class="n">subcollection_document_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subcollection_document_ref</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subcollection_document_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">full_subcollection</span><span class="p">[</span><span class="n">subcollection_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">subcollection_document_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">document_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">full_subcollection</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">overwrite_local</span><span class="p">:</span>
+            <span class="c1"># use from_dict on self, and then use from_dict on each of the related model fields</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">document_dict</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">related_model_field_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_model_fields</span><span class="p">():</span>
+                <span class="n">related_model_name</span> <span class="o">=</span> <span class="n">related_model_field_name</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># remove leading underscore</span>
+                <span class="n">related_model</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">related_model_name</span><span class="p">)</span>
+                <span class="c1"># if there is not an instance of the related model, we want to create one!</span>
+                <span class="k">if</span> <span class="n">related_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">related_model</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">related_model_field_name</span><span class="p">)</span><span class="o">.</span><span class="n">field_model</span><span class="p">()</span>
+                <span class="n">related_model</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">document_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">related_model_name</span><span class="p">,</span> <span class="p">{}))</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">related_model_name</span><span class="p">,</span> <span class="n">related_model</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">document_dict</span></div>
+
+<div class="viewcode-block" id="Model.delete"><a class="viewcode-back" href="../../index.html#fsmodels.models.Model.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deletes the firestore record corresponding to the id defined on the instance</span>
+
+<span class="sd">        :return: dictionary describing the result of the delete operation from firestore</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">id_as_str</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>  <span class="c1"># just to be sure that id is a str</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">id_as_str</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Cannot call delete for </span><span class="si">{self._collection}</span><span class="s1"> document; no id specified.&#39;</span><span class="p">)</span>
+        <span class="n">document_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">document</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">id_as_str</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">document_ref</span><span class="o">.</span><span class="n">delete</span><span class="p">()}</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Correlation Dynamics
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

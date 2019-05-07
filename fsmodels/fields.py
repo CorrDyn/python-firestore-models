@@ -9,13 +9,15 @@ class Field:
 
     Example:
 
-    def validate_date_created(date_created_value):
-        is_valid, error = isint(date_created_value), {}
-        if not is_valid:
-            error = {'error': 'value of date_created must be an integer number.'}
-        return is_valid, error
+    .. code-block:: python
 
-    date_created = Field(required=True, default=time.time, validation=validate_date_created)
+        def validate_date_created(date_created_value):
+            is_valid, error = isint(date_created_value), {}
+            if not is_valid:
+                error = {'error': 'value of date_created must be an integer number.'}
+            return is_valid, error
+
+        date_created = Field(required=True, default=time.time, validation=validate_date_created)
     """
     # name is overwritten by the Model containing the Field instance.
     name = None
@@ -60,15 +62,17 @@ class Field:
 
         Example:
 
-        def validate_date_created(date_created_value):
-            is_valid, error = isint(date_created_value), {}
-            if not is_valid:
-                error = {'error': 'value of date_created must be an integer number.'}
-            return is_valid, error
+        .. code-block:: python
 
-        date_created = Field(required=True, default=time.time, validation=validate_date_created)
+            def validate_date_created(date_created_value):
+                is_valid, error = isint(date_created_value), {}
+                if not is_valid:
+                    error = {'error': 'value of date_created must be an integer number.'}
+                return is_valid, error
 
-        date_created.validate(time.time()) # returns (True, {})
+            date_created = Field(required=True, default=time.time, validation=validate_date_created)
+
+            date_created.validate(time.time()) # returns (True, {})
         """
         if self.required and not value:
             message = f'{self.model_name} field {self.name} is required but received no default and no value.'
@@ -96,9 +100,11 @@ class Field:
 
         Example:
 
-        date_created = Field(required=True, default=time.time)
+        .. code-block:: python
 
-        date_created.default() # returns time.time()
+            date_created = Field(required=True, default=time.time)
+
+            date_created.default() # returns time.time()
         """
         return self._default(*args, **kwargs)
 

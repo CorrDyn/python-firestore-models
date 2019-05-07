@@ -1,0 +1,391 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>python-firestore-models &mdash; Python Firestore Models  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Python Firestore Models" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Python Firestore Models
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">python-firestore-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#when-to-use">When to Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#basic-usage">Basic Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#environment">Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-fetching-and-deleting">Creating, Fetching, and Deleting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#edit-existing">Edit Existing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#delete-existing">Delete Existing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#advanced-usage">Advanced Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#one-to-one-relationships">One to One Relationships</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#model-name-in-error-messages-and-collection-name-in-firestore-is-my-model1">model_name in error messages and collection name in firestore is my_model1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#model-name-in-error-messages-and-collection-name-in-firestore-is-my-model-2">model_name in error messages and collection name in firestore is MY-MODEL-2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#model-name-in-error-messages-is-my-model3-and-collection-name-in-firestore-is-my-model-3">model_name in error messages is my_model3 and collection name in firestore is mY-mODeL-3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#same-as-google-cloud-firestore">same as google.cloud.firestore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#you-can-do-stuff-like">you can do stuff like</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Python Firestore Models</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>python-firestore-models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/readme.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="python-firestore-models">
+<h1>python-firestore-models<a class="headerlink" href="#python-firestore-models" title="Permalink to this headline">¶</a></h1>
+<p>This library serves as a wrapper around Google’s Firestore. It
+implements validation, type checking facilities, and relational (work in
+progress) model logic.</p>
+</div>
+<div class="section" id="when-to-use">
+<h1>When to Use<a class="headerlink" href="#when-to-use" title="Permalink to this headline">¶</a></h1>
+<p>When you want a simple abstraction layer on top of Firestore to help you
+keep track of entities and their relationships, the way you would
+achieve it with an ORM. The library’s API borrows several design
+paradigms from Django’s ORM, because I like Django’s ORM.</p>
+</div>
+<div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">fsmodels</span></code></p>
+</div>
+<div class="section" id="basic-usage">
+<h1>Basic Usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="environment">
+<h2>Environment<a class="headerlink" href="#environment" title="Permalink to this headline">¶</a></h2>
+<p>You will need to set up your environment in the usual way to have access
+to your resources on Google Cloud Platform.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;GOOGLE_APPLICATION_CREDENTIALS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;/path/to/credentials.json&#39;</span>
+</pre></div>
+</div>
+<p>If you do not have this variable set, model instances will log a
+warning, and nothing will actually work with Firestore.</p>
+</div>
+<div class="section" id="creating-fetching-and-deleting">
+<h2>Creating, Fetching, and Deleting<a class="headerlink" href="#creating-fetching-and-deleting" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fsmodels.models</span> <span class="k">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">fsmodels.fields</span> <span class="k">import</span> <span class="n">Field</span>
+
+<span class="k">def</span> <span class="nf">is_valid_string</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="n">f</span><span class="s1">&#39;value must be str, cannot be </span><span class="si">{value}</span><span class="s1">&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+
+    <span class="n">username</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">password</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">first_name</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;Billy&#39;</span><span class="p">)</span>
+    <span class="n">last_name</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">validation</span><span class="o">=</span><span class="n">is_valid_string</span><span class="p">)</span>
+    <span class="n">created_date</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
+
+
+<span class="n">my_user</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">&#39;user1&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;goodpassword&#39;</span><span class="p">)</span>
+<span class="n">my_user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span> <span class="c1"># automatically generates a new id and creates this user in firestore.</span>
+<span class="n">my_user</span><span class="o">.</span><span class="n">retrieve</span><span class="p">()</span> <span class="c1"># returns a dict of the record in firestore</span>
+<span class="n">my_user</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span> <span class="c1"># deletes the record in firestore with my_user.id</span>
+
+
+<span class="n">my_user2</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">&#39;user2&#39;</span><span class="p">)</span> <span class="c1"># validation functions are not called on __init__ by defalt</span>
+<span class="n">my_user2</span><span class="o">.</span><span class="n">save</span><span class="p">()</span> <span class="c1"># raises a validation error; password is a required field.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="edit-existing">
+<h2>Edit Existing<a class="headerlink" href="#edit-existing" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;my_id&#39;</span><span class="p">)</span>
+
+<span class="c1"># retrieve ignores everything about the local model instance other than the id</span>
+<span class="n">user</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span><span class="n">overwrite_local</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span> <span class="c1"># see what was in firestore</span>
+<span class="n">user</span><span class="o">.</span><span class="n">first_name</span> <span class="o">=</span> <span class="s1">&#39;a different name&#39;</span>
+<span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="delete-existing">
+<h2>Delete Existing<a class="headerlink" href="#delete-existing" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;my_id&#39;</span><span class="p">)</span>
+
+<span class="n">user</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="advanced-usage">
+<h1>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="one-to-one-relationships">
+<h2>One to One Relationships<a class="headerlink" href="#one-to-one-relationships" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>import uuid
+
+from fsmodels.models import Model
+from fsmodels.fields import Field, ModelField, IDField
+
+def uuid_as_str():
+    return str(uuid.uuid4())
+
+class Profile(Model):
+    id = IDField(required=True, default=uuid_as_str)
+    first_name = Field(required=True)
+    last_name = Field(required=True)
+
+class User(Model):
+    id = IDField(required=True, default=uuid_as_str)
+    username = Field(required=True)
+    password = Field(required=True)
+    profile = ModelField(Profile, required=True)
+
+profile = Profile(first_name=&#39;Billy&#39;, last_name=&#39;Mayes&#39;)
+# will save both the profile and the user
+user = User(username=&#39;bmayes&#39;, password=&#39;plaintextpassword&#39;, profile=profile)
+
+print(user.retrieve())
+#{&#39;profile&#39;: {&#39;id&#39;: &#39;bd3ca41a-b6c4-4249-ac48-eb05db79bb3d&#39;,
+#  &#39;first_name&#39;: &#39;Billy&#39;,
+#  &#39;last_name&#39;: &#39;Mayes&#39;},
+# &#39;password&#39;: &#39;plaintextpassword&#39;,
+# &#39;username&#39;: &#39;bmayes&#39;,
+# &#39;profile_id&#39;: &#39;bd3ca41a-b6c4-4249-ac48-eb05db79bb3d&#39;,
+# &#39;id&#39;: &#39;1e586d79-f2c0-4618-a7f7-95308a54298e&#39;}
+
+print(profile.retrieve())
+#{&#39;user_id&#39;: &#39;1e586d79-f2c0-4618-a7f7-95308a54298e&#39;,
+# &#39;first_name&#39;: &#39;Billy&#39;,
+# &#39;last_name&#39;: &#39;Mayes&#39;,
+ ```
+
+ ### One to Many Relationships
+ Planned.
+
+ ### Overriding Defaults
+</pre></div>
+</div>
+<div class="section" id="model-name-in-error-messages-and-collection-name-in-firestore-is-my-model1">
+<h3>model_name in error messages and collection name in firestore is my_model1<a class="headerlink" href="#model-name-in-error-messages-and-collection-name-in-firestore-is-my-model1" title="Permalink to this headline">¶</a></h3>
+<p>class MyModel1(Model): first_name = Field(required=True) last_name =
+Field(required=True)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+    <span class="n">model_name</span> <span class="o">=</span> <span class="s1">&#39;Profiles&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="model-name-in-error-messages-and-collection-name-in-firestore-is-my-model-2">
+<h3>model_name in error messages and collection name in firestore is MY-MODEL-2<a class="headerlink" href="#model-name-in-error-messages-and-collection-name-in-firestore-is-my-model-2" title="Permalink to this headline">¶</a></h3>
+<p>class MyModel2(Model): first_name = Field(required=True) last_name =
+Field(required=True)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+    <span class="n">model_name</span> <span class="o">=</span> <span class="s1">&#39;MY-MODEL-2&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="model-name-in-error-messages-is-my-model3-and-collection-name-in-firestore-is-my-model-3">
+<h3>model_name in error messages is my_model3 and collection name in firestore is mY-mODeL-3<a class="headerlink" href="#model-name-in-error-messages-is-my-model3-and-collection-name-in-firestore-is-my-model-3" title="Permalink to this headline">¶</a></h3>
+<p>class MyModel3(Model): first_name = Field(required=True) last_name =
+Field(required=True)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+    <span class="n">collection</span> <span class="o">=</span> <span class="s1">&#39;mY-mODeL-3&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">### Using Google&#39;s firestore API</span>
+</pre></div>
+</div>
+<p>class MyModel1(Model): first_name = Field(required=True) last_name =
+Field(required=True)</p>
+<p>m = MyModel1()</p>
+</div>
+<div class="section" id="same-as-google-cloud-firestore">
+<h3>same as google.cloud.firestore<a class="headerlink" href="#same-as-google-cloud-firestore" title="Permalink to this headline">¶</a></h3>
+<p>m.firestore # same as google.cloud.firestore.Client() m.db # same as
+google.cloud.firestore.Client().collection(m.<em>collection) where
+m.</em>collection in this case is my_model1 m.collection</p>
+</div>
+<div class="section" id="you-can-do-stuff-like">
+<h3>you can do stuff like<a class="headerlink" href="#you-can-do-stuff-like" title="Permalink to this headline">¶</a></h3>
+<p>for record in m.collection.get(): print(record.to_dict()) ```</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Python Firestore Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Correlation Dynamics
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

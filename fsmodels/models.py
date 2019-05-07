@@ -12,12 +12,15 @@ CAN_CONNECT = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', False)
 
 class BaseModel(_BaseModel):
     """
+
     Example:
 
-    class User(BaseModel):
-        username = Field(required=True)
+    .. code-block:: python
 
-    user = User(username='bmayes', _validate_on_init=True)
+        class User(BaseModel):
+            username = Field(required=True)
+
+        user = User(username='bmayes', _validate_on_init=True)
 
     """
     id = IDField()
@@ -108,11 +111,13 @@ class BaseModel(_BaseModel):
 
         Example:
 
-        class User(BaseModel):
-            username = Field(required=True)
+        .. code-block:: python
 
-        user = User()
-        user.validate(raise_error=False) # returns (False, description_of_errors<dict>) because username is required
+            class User(BaseModel):
+                username = Field(required=True)
+
+            user = User()
+            user.validate(raise_error=False) # returns (False, description_of_errors<dict>) because username is required
         """
         error_map = {}
         for field_name in self._field_names.union(self._model_field_names):
@@ -135,11 +140,13 @@ class BaseModel(_BaseModel):
 
         Example:
 
-        class User(BaseModel):
-            username = Field(required=True, default=generate_next_username)
+        .. code-block:: python
 
-        user = User() # username.default() is called on __init__
-        user.to_dict() # returns {'username': 'user_n'}
+            class User(BaseModel):
+                username = Field(required=True, default=generate_next_username)
+
+            user = User() # username.default() is called on __init__
+            user.to_dict() # returns {'username': 'user_n'}
 
         :return:
         """
@@ -160,14 +167,16 @@ class BaseModel(_BaseModel):
 
         Example:
 
-        class User(BaseModel):
-            username = Field(required=True, default=generate_next_username)
+        .. code-block:: python
 
-        user = User() # username.default() is called on __init__
-        user_dict = user.to_dict() #  {'username': 'user_3'}
-        user2 = User()
-        user2.from_dict(user_dict)
-        user2.to_dict() # returns {'username': 'user_3'}
+            class User(BaseModel):
+                username = Field(required=True, default=generate_next_username)
+
+            user = User() # username.default() is called on __init__
+            user_dict = user.to_dict() #  {'username': 'user_3'}
+            user2 = User()
+            user2.from_dict(user_dict)
+            user2.to_dict() # returns {'username': 'user_3'}
 
         """
         field_tuple = tuple(
@@ -183,29 +192,31 @@ class Model(BaseModel):
 
     Example:
 
-    class Profile(Model):
-        id = Field(required=True, default=uuid.uuid4)
-        first_name = Field(required=True)
-        last_name = Field(required=True)
+    .. code-block:: python
 
-        class Meta:
-            collection = 'artichoke'
+        class Profile(Model):
+            id = Field(required=True, default=uuid.uuid4)
+            first_name = Field(required=True)
+            last_name = Field(required=True)
 
-    class User(Model):
-        id = Field(required=True, default=uuid.uuid4)
-        username = Field(required=True)
-        password = Field(required=True)
-        profile = ModelField(Profile, required=True)
+            class Meta:
+                collection = 'artichoke'
 
-        class Meta:
-            collection = 'okey-dokey'
+        class User(Model):
+            id = Field(required=True, default=uuid.uuid4)
+            username = Field(required=True)
+            password = Field(required=True)
+            profile = ModelField(Profile, required=True)
 
-    profile = Profile(first_name='Billy', last_name='Jean') # default id created on Model instance
-    user = User(username='bjean', password='password', profile=profile) # default id created on Model instance
+            class Meta:
+                collection = 'okey-dokey'
 
-    user.save() # new profile created to collection named "artichoke", new user added to collection named okey-dokey
-    user.retrieve() # get newly created user according to id
-    user.delete() # delete newly created profile according to id
+        profile = Profile(first_name='Billy', last_name='Jean') # default id created on Model instance
+        user = User(username='bjean', password='password', profile=profile) # default id created on Model instance
+
+        user.save() # new profile created to collection named "artichoke", new user added to collection named okey-dokey
+        user.retrieve() # get newly created user according to id
+        user.delete() # delete newly created profile according to id
 
 
     """

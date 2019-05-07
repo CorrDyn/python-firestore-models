@@ -1,0 +1,360 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fsmodels.fields &mdash; Python Firestore Models  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Python Firestore Models
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">python-firestore-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#when-to-use">When to Use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#advanced-usage">Advanced Usage</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Python Firestore Models</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>fsmodels.fields</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fsmodels.fields</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span>
+
+<span class="kn">from</span> <span class="nn">fsmodels.common</span> <span class="k">import</span> <span class="n">ValidationError</span><span class="p">,</span> <span class="n">_BaseModel</span>
+
+
+<div class="viewcode-block" id="Field"><a class="viewcode-back" href="../../index.html#fsmodels.fields.Field">[docs]</a><span class="k">class</span> <span class="nc">Field</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Field to be used on a Model</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        def validate_date_created(date_created_value):</span>
+<span class="sd">            is_valid, error = isint(date_created_value), {}</span>
+<span class="sd">            if not is_valid:</span>
+<span class="sd">                error = {&#39;error&#39;: &#39;value of date_created must be an integer number.&#39;}</span>
+<span class="sd">            return is_valid, error</span>
+
+<span class="sd">        date_created = Field(required=True, default=time.time, validation=validate_date_created)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># name is overwritten by the Model containing the Field instance.</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">model_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">required</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">validation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param required: Whether or not the field is required</span>
+<span class="sd">        :param default: What the field defaults to if no value is set</span>
+<span class="sd">        :param validation: return true if the value is valid, otherwise return false</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="n">required</span>
+
+        <span class="c1"># make sure default is always a callable</span>
+        <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">default</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default</span> <span class="o">=</span> <span class="n">default</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default</span> <span class="o">=</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">default</span>
+
+        <span class="c1"># validation should either be None or a callable</span>
+        <span class="k">if</span> <span class="n">validation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">validation</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">validation</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;validation must be a callable, cannot be </span><span class="si">{validation}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># always passes if validation is None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="p">{})</span>
+
+<div class="viewcode-block" id="Field.validate"><a class="viewcode-back" href="../../index.html#fsmodels.fields.Field.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">raise_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check that the passed value is not None if the Field instance is required, and calls the `validation`</span>
+<span class="sd">        function passed via Field.__init___. Raises an error if raise_error is `True` (default).</span>
+
+<span class="sd">        :param value: value to validate against the Field specifications</span>
+<span class="sd">        :param raise_error: whether or not to raise a ValidationError when an error is encountered.</span>
+<span class="sd">        :return (bool, dict): whether or not there was an error and a dict describing the errors</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            def validate_date_created(date_created_value):</span>
+<span class="sd">                is_valid, error = isint(date_created_value), {}</span>
+<span class="sd">                if not is_valid:</span>
+<span class="sd">                    error = {&#39;error&#39;: &#39;value of date_created must be an integer number.&#39;}</span>
+<span class="sd">                return is_valid, error</span>
+
+<span class="sd">            date_created = Field(required=True, default=time.time, validation=validate_date_created)</span>
+
+<span class="sd">            date_created.validate(time.time()) # returns (True, {})</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{self.model_name}</span><span class="s1"> field </span><span class="si">{self.name}</span><span class="s1"> is required but received no default and no value.&#39;</span>
+            <span class="k">if</span> <span class="n">raise_error</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="n">message</span><span class="p">}</span>
+
+        <span class="n">validation_passed</span><span class="p">,</span> <span class="n">errors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">raise_error</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">validation_passed</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{self.model_name}</span><span class="s1"> value of </span><span class="si">{self.name}</span><span class="s1"> failed validation.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># whether or not the validation passed and useful error information</span>
+        <span class="k">return</span> <span class="n">validation_passed</span><span class="p">,</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="Field.default"><a class="viewcode-back" href="../../index.html#fsmodels.fields.Field.default">[docs]</a>    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the Field instance default. Returns None if the user did not specify a default value or default function.</span>
+
+<span class="sd">        :param args: arbitrary arguments to be used to be the default generating function specified in Field.__init__</span>
+<span class="sd">        :param kwargs: arbitrary kwargs to be used in the default generating function specified in Field.__init__</span>
+<span class="sd">        :return: the default Field value or the result of the default function</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            date_created = Field(required=True, default=time.time)</span>
+
+<span class="sd">            date_created.default() # returns time.time()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s1">&#39;&lt;</span><span class="si">{self.__class__.__name__}</span><span class="s1"> name:</span><span class="si">{self.name}</span><span class="s1"> required:</span><span class="si">{self.required}</span><span class="s1"> default:</span><span class="si">{self.default}</span><span class="s1"> validation:</span><span class="si">{self.validation.__name__}</span><span class="s1">&gt;&#39;</span></div>
+
+
+<div class="viewcode-block" id="ModelField"><a class="viewcode-back" href="../../index.html#fsmodels.fields.ModelField">[docs]</a><span class="k">class</span> <span class="nc">ModelField</span><span class="p">(</span><span class="n">Field</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Subclass of Field that makes reference to a subclass of BaseModel.</span>
+
+<span class="sd">    Used for one-to-many relationships.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">_BaseModel</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># keeping track of this stuff so we can emit useful error messages</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_model_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ModelField</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ModelField.validate"><a class="viewcode-back" href="../../index.html#fsmodels.fields.ModelField.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_instance</span><span class="p">,</span> <span class="n">raise_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check to see that the passed model instance is a subclass of `model` parameter passed into ModelField.__init__,</span>
+<span class="sd">        then validate the fields of that model as usual. Parallels the validate method of the Field class</span>
+
+<span class="sd">        :param model_instance: instance of model to validate (parallels `value` in validate method of Field class)</span>
+<span class="sd">        :param raise_error: whether or not an exception is raised on validation error</span>
+<span class="sd">        :return (bool, dict): whether or not there was an error and a dict describing the errors</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">is_valid_model</span><span class="p">,</span> <span class="n">is_valid_field</span><span class="p">,</span> <span class="n">model_errors</span><span class="p">,</span> <span class="n">field_errors</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="p">{},</span> <span class="kc">True</span><span class="p">,</span> <span class="p">{}</span>
+        <span class="c1"># check that the passed model_instance is a subclass of the prescribed model from __init__</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_instance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_model</span><span class="p">):</span>
+            <span class="n">is_valid_model</span><span class="p">,</span> <span class="n">model_errors</span> <span class="o">=</span> <span class="n">model_instance</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">raise_error</span><span class="p">)</span>
+        <span class="c1"># the model instance is not None, this will emit an error. Otherwise, we check the</span>
+        <span class="c1"># field validation logic to determine whether this is a required field.</span>
+        <span class="k">elif</span> <span class="n">model_instance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{self.name}</span><span class="s1"> field failed validation. </span><span class="si">{model_instance}</span><span class="s1"> is </span><span class="si">{model_instance.__class__.__name__}</span><span class="s1">, must be </span><span class="si">{self.field_model_name}</span><span class="s1">&#39;</span>
+            <span class="k">if</span> <span class="n">raise_error</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="n">message</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">is_valid_model</span><span class="p">:</span>
+            <span class="n">is_valid_field</span><span class="p">,</span> <span class="n">field_errors</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">ModelField</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">model_instance</span><span class="p">,</span> <span class="n">raise_error</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_valid_field</span> <span class="ow">and</span> <span class="n">is_valid_model</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="p">{</span><span class="o">**</span><span class="n">model_errors</span><span class="p">,</span> <span class="o">**</span><span class="n">field_errors</span><span class="p">}</span></div></div>
+
+
+<div class="viewcode-block" id="IDField"><a class="viewcode-back" href="../../index.html#fsmodels.fields.IDField">[docs]</a><span class="k">class</span> <span class="nc">IDField</span><span class="p">(</span><span class="n">Field</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds default validation to Field a make sure that the `value` is a string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="IDField.validate"><a class="viewcode-back" href="../../index.html#fsmodels.fields.IDField.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">raise_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{self.model_name}</span><span class="s1"> value of </span><span class="si">{self.name}</span><span class="s1"> failed validation; </span><span class="si">{self.name}</span><span class="s1"> must be str instance, not </span><span class="si">{value.__class__}</span><span class="s1">.&#39;</span>
+            <span class="k">if</span> <span class="n">raise_error</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">message</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">IDField</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">raise_error</span><span class="o">=</span><span class="n">raise_error</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Correlation Dynamics
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
